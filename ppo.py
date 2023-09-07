@@ -10,7 +10,7 @@ from network import FeedForwardNN
 
 class PPO:
 
-    def __init__(self, env):
+    def __init__(self, env, device):
 
         self._init_hyperparameters()
 
@@ -22,6 +22,9 @@ class PPO:
 
         self.actor = FeedForwardNN(self.obs_dim, self.act_dim)
         self.critic = FeedForwardNN(self.obs_dim, 1)
+
+        self.actor.to(device)
+        self.critic.to(device)
 
         self.actor_optim = Adam(self.actor.parameters(), lr=self.lr)
         self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
