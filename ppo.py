@@ -3,8 +3,6 @@ import torch.nn as nn
 import numpy as np
 from torch.distributions import MultivariateNormal
 from torch.optim import Adam
-from gymnasium.spaces import utils
-from gymnasium import spaces
 
 from network import FeedForwardNN
 
