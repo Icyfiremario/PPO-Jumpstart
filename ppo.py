@@ -180,7 +180,7 @@ class PPO:
 
 
                 #Calculate loss and adjust policy according to Evaluation return and ratios
-                actor_loss = (-torch.min(surr1, surr2)).mean()
+                actor_loss = (-torch.min(surr1, surr2)).mean().to(self.device)
                 critic_loss = nn.MSELoss()(V, batch_rtgs)
 
                 self.actor_optim.zero_grad()
