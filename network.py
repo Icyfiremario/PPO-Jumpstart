@@ -10,13 +10,14 @@ class FeedForwardNN(nn.Module):
 
         super(FeedForwardNN, self).__init__()
 
-        #define the networks layers
+        #Define the networks layers. Look at PyTorch's documentation for more info on the specific layers
         self.layer1 = nn.Linear(in_dim, 64)
         self.layer2 =nn.Linear(64, 64)
         self.layer3 = nn.Linear(64, out_dim)
 
     def forward(self, obs):
 
+        #Make sure that input is a tensor
         if isinstance(obs, np.ndarray):
             obs = torch.tensor(obs, dtype=torch.float)
 

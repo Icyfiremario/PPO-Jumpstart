@@ -4,6 +4,7 @@ import gymnasium as gym
 from ppo import PPO
 from enviroment import empty_env
 
+#Check for Nvidia GPU
 if torch.cuda.is_available():
     DEVICE = torch.device("cuda:0")
 else:
@@ -11,7 +12,6 @@ else:
 
 #create the enviroment
 #env = empty_env()  #custom env
-
 env = gym.make("MountainCarContinuous-v0")
 
 #init the model

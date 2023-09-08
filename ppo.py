@@ -16,6 +16,7 @@ class PPO:
         self.env = env
         self.device = device
 
+        #Get the input and output spaces
         self.obs_dim = env.observation_space.shape[0]
         self.act_dim = env.action_space.shape[0]
 
@@ -25,9 +26,11 @@ class PPO:
         self.actor.to(device)
         self.critic.to(device)
 
+        #Define model optimizers
         self.actor_optim = Adam(self.actor.parameters(), lr=self.lr)
         self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
 
+        #Create the covalence matrix for evaluation and action generation
         self.cov_var = torch.full(size=(self.act_dim,), fill_value=0.5).to(device)
         self.cov_mat = torch.diag(self.cov_var).to(device)
 
@@ -65,7 +68,7 @@ class PPO:
 
             #Start new episode
             obs = self.env.reset()
-            obs = obs[0]
+            obs = obs[0] #The enviroment thats currently in use returns a tuple when the reset function is called. Make sure to remove this if your enviroment doesn't return a tuple.
             done = False
 
             for ep_t in range(self.max_timesteps_per_episode):
@@ -74,7 +77,7 @@ class PPO:
 
                 batch_obs.append(obs)
 
-                #Get action to take from actor network and take it
+                #Get action to take from actor network and perform the action
                 action, log_prob = self.get_action(obs)
                 obs, rew, done, _, _ = self.env.step(action)
 
@@ -97,7 +100,7 @@ class PPO:
         batch_acts = torch.tensor(batch_acts, dtype=torch.float).to(self.device)
         batch_log_probs = torch.tensor(batch_log_probs, dtype=torch.float).to(self.device)
 
-        batch_rtgs = self.compute_rtgs(batch_rews)
+        batch_rtgs = self.compute_rtgs(batch_rews) #Rewards to go. Takes the rewards and discounts them accordingly
 
         return batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens
     
@@ -153,7 +156,7 @@ class PPO:
 
             print(f"Timesteps ran: {t_so_far}")
 
-            batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens = self.rollout()
+            batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens = self.rollout() #Get one batch of data
 
             t_so_far += np.sum(batch_lens)
             i_so_far += 1
