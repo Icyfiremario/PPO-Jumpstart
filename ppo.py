@@ -16,6 +16,7 @@ class PPO:
 
         #initalize class variables for the enviroment, Neural networks, optimizers, and covalence matrix
         self.env = env
+        self.device = device
 
         self.obs_dim = env.observation_space.shape[0]
         self.act_dim = env.action_space.shape[0]
@@ -27,10 +28,13 @@ class PPO:
         self.critic.to(device)
 
         self.actor_optim = Adam(self.actor.parameters(), lr=self.lr)
-        self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
+        self.critic_optim = Adam(self.critic.parameters(), lr=self.lr).to(device)
 
-        self.cov_var = torch.full(size=(self.act_dim,), fill_value=0.5)
-        self.cov_mat = torch.diag(self.cov_var)
+        self.actor_optim.to(device)
+        self.critic_optim.to(device)
+
+        self.cov_var = torch.full(size=(self.act_dim,), fill_value=0.5).to(device)
+        self.cov_mat = torch.diag(self.cov_var).to(device)
 
     def _init_hyperparameters(self):
 
@@ -93,9 +97,9 @@ class PPO:
         batch_acts = np.array(batch_acts)
         batch_log_probs = np.array(batch_log_probs)
 
-        batch_obs = torch.tensor(batch_obs, dtype=torch.float)
-        batch_acts = torch.tensor(batch_acts, dtype=torch.float)
-        batch_log_probs = torch.tensor(batch_log_probs, dtype=torch.float)
+        batch_obs = torch.tensor(batch_obs, dtype=torch.float).to(self.device)
+        batch_acts = torch.tensor(batch_acts, dtype=torch.float).to(self.device)
+        batch_log_probs = torch.tensor(batch_log_probs, dtype=torch.float).to(self.device)
 
         batch_rtgs = self.compute_rtgs(batch_rews)
 
@@ -114,7 +118,7 @@ class PPO:
                 discounted_reward = rew + discounted_reward * self.gamma
                 batch_rtgs.insert(0, discounted_reward)
         
-        batch_rtgs = torch.tensor(batch_rtgs, dtype=torch.float)
+        batch_rtgs = torch.tensor(batch_rtgs, dtype=torch.float).to(self.device)
 
         return batch_rtgs
     
