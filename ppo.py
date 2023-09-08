@@ -28,10 +28,7 @@ class PPO:
         self.critic.to(device)
 
         self.actor_optim = Adam(self.actor.parameters(), lr=self.lr)
-        self.critic_optim = Adam(self.critic.parameters(), lr=self.lr).to(device)
-
-        self.actor_optim.to(device)
-        self.critic_optim.to(device)
+        self.critic_optim = Adam(self.critic.parameters(), lr=self.lr)
 
         self.cov_var = torch.full(size=(self.act_dim,), fill_value=0.5).to(device)
         self.cov_mat = torch.diag(self.cov_var).to(device)
@@ -70,6 +67,7 @@ class PPO:
 
             #Start new episode
             obs = self.env.reset()
+            obs = obs[0]
             done = False
 
             for ep_t in range(self.max_timesteps_per_episode):
@@ -80,7 +78,7 @@ class PPO:
 
                 #Get action to take from actor network and take it
                 action, log_prob = self.get_action(obs)
-                obs, rew, done, _ = self.env.step(action)
+                obs, rew, done, _, _ = self.env.step(action)
 
                 ep_rews.append(rew)
                 batch_acts.append(action)
@@ -194,5 +192,5 @@ class PPO:
                 self.critic_optim.step()
 
             if i_so_far % self.save_freq == 0:
-                torch.save(self.actor.state_dict(), "./chess_actor.pth")
-                torch.save(self.critic.state_dict(), "./chess_critic.pth")
+                torch.save(self.actor.state_dict(), "./ppo_actor.pth")
+                torch.save(self.critic.state_dict(), "./ppo_critic.pth")

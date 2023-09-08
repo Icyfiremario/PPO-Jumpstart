@@ -1,3 +1,5 @@
 /.vscode
 /PPO-AI
 /__pycache__
+
+*.pth
