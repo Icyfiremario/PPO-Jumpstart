@@ -2,4 +2,4 @@ torch
 torchaudio
 torchvision
 matplotlib
-gymnasium
+gymnasium[classic-control]
