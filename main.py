@@ -17,5 +17,5 @@ env = gym.make("MountainCarContinuous-v0")
 #init the model
 model = PPO(env, DEVICE)
 
-#start training loop for 2M timesteps
-model.learn(2_000_000)
+#start training loop for 200M timesteps
+model.learn(200_000_000)
