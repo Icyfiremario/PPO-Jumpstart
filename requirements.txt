@@ -3,3 +3,4 @@ torchaudio
 torchvision
 matplotlib
 gymnasium[classic-control]
+tqdm

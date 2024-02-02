@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 from torch.distributions import MultivariateNormal
 from torch.optim import Adam
+from tqdm import tqdm
 
 from network import FeedForwardNN
 
@@ -22,6 +23,14 @@ class PPO:
 
         self.actor = FeedForwardNN(self.obs_dim, self.act_dim)
         self.critic = FeedForwardNN(self.obs_dim, 1)
+
+        print("Attempting to load pre-trained models...")
+        try:
+            self.actor.load_state_dict(torch.load("./ppo_actor.pth"))
+            self.critic.load_state_dict(torch.load("./ppo_critic.pth"))
+            print("Success")
+        except:
+            print("Failed. Training new model")
 
         self.actor.to(device)
         self.critic.to(device)
@@ -112,7 +121,7 @@ class PPO:
 
             discounted_reward = 0
 
-            for rew in  reversed(ep_rews):
+            for rew in reversed(ep_rews):
 
                 discounted_reward = rew + discounted_reward * self.gamma
                 batch_rtgs.insert(0, discounted_reward)
@@ -146,20 +155,24 @@ class PPO:
     def learn(self, total_timesteps):
 
         print("Starting training")
-        print(f"Training for {total_timesteps} timesteps")
+        print(f"Training for {total_timesteps:,} timesteps")
 
         t_so_far = 0
         i_so_far = 0
 
+        pbar = tqdm(total=total_timesteps)
+
         #start training loop
         while t_so_far < total_timesteps:
 
-            print(f"Timesteps ran: {t_so_far}")
+            # print(f"Timesteps ran: {t_so_far}")
 
             batch_obs, batch_acts, batch_log_probs, batch_rtgs, batch_lens = self.rollout() #Get one batch of data
 
             t_so_far += np.sum(batch_lens)
             i_so_far += 1
+
+            pbar.update(np.sum(batch_lens))
 
             #Calculate ratios
             V, _ = self.evaluate(batch_obs, batch_acts)
@@ -195,3 +208,5 @@ class PPO:
             if i_so_far % self.save_freq == 0:
                 torch.save(self.actor.state_dict(), "./ppo_actor.pth")
                 torch.save(self.critic.state_dict(), "./ppo_critic.pth")
+        pbar.close()
+

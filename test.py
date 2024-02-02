@@ -10,7 +10,7 @@ if torch.cuda.is_available():
 else:
     DEVICE = torch.device("cpu")
 
-env = gym.make("MountainCarContinuous-v0", render_mode='human')
+env = gym.make("Pendulum-v1", render_mode='human')
 
 obs_dim = env.observation_space.shape[0]
 act_dim = env.action_space.shape[0]

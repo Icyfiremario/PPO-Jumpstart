@@ -12,7 +12,7 @@ else:
 
 #create the enviroment
 #env = empty_env()  #custom env
-env = gym.make("MountainCarContinuous-v0")
+env = gym.make("Pendulum-v1")
 
 #init the model
 model = PPO(env, DEVICE)
